@@ -429,7 +429,7 @@
                                     )
                                 ),
                                 
-                                // Grid with left numbers
+                                // Grid with left and right numbers
                                 React.createElement('div', { className: "flex" },
                                     // Left numbers
                                     React.createElement('div', { 
@@ -459,7 +459,62 @@
                                             maxWidth: '80vw',
                                             overflow: 'auto'
                                         }
-                                    }, ...renderGrid())
+                                    }, ...renderGrid()),
+
+                                    // Right numbers
+                                    React.createElement('div', { 
+                                        className: "flex flex-col", 
+                                        style: { marginLeft: '8px', paddingTop: '16px' } 
+                                    },
+                                        Array.from({length: num1}, (_, i) => 
+                                            React.createElement('div', {
+                                                key: i,
+                                                className: "flex items-center justify-center font-bold text-indigo-600",
+                                                style: { 
+                                                    width: cellSize * 0.8,
+                                                    height: cellSize,
+                                                    fontSize: cellSize < 25 ? '12px' : '14px',
+                                                    marginBottom: '4px'
+                                                }
+                                            }, i + 1)
+                                        )
+                                    )
+                                ),
+
+                                // Bottom column counts for breakdown visualization
+                                num2 > 10 && React.createElement('div', { 
+                                    className: "flex justify-center mt-4", 
+                                    style: { marginLeft: cellSize * 0.8 + 8 + 16 } 
+                                },
+                                    React.createElement('div', { className: "flex gap-2" },
+                                        // First 10 columns count
+                                        React.createElement('div', { 
+                                            className: "text-center p-3 bg-red-100 border-2 border-red-300 rounded-lg",
+                                            style: { width: cellSize * 10 + 36 } // 10 cells + gaps
+                                        },
+                                            React.createElement('div', { className: "text-lg font-bold text-red-700" }, `${num1} × 10 = ${num1 * 10}`),
+                                            React.createElement('div', { className: "text-sm text-red-600" }, "First 10 columns")
+                                        ),
+                                        
+                                        // Remaining columns count
+                                        React.createElement('div', { 
+                                            className: "text-center p-3 bg-blue-100 border-2 border-blue-300 rounded-lg",
+                                            style: { width: cellSize * (num2 - 10) + (num2 - 10) * 4 - 4 } // remaining cells + gaps
+                                        },
+                                            React.createElement('div', { className: "text-lg font-bold text-blue-700" }, `${num1} × ${num2 - 10} = ${num1 * (num2 - 10)}`),
+                                            React.createElement('div', { className: "text-sm text-blue-600" }, `Last ${num2 - 10} columns`)
+                                        )
+                                    )
+                                ),
+
+                                // Total breakdown explanation
+                                num2 > 10 && React.createElement('div', { className: "text-center mt-3 p-3 bg-green-100 border-2 border-green-300 rounded-lg" },
+                                    React.createElement('div', { className: "text-xl font-bold text-green-700" }, 
+                                        `${num1} × ${num2} = ${num1 * 10} + ${num1 * (num2 - 10)} = ${num1 * num2}`
+                                    ),
+                                    React.createElement('div', { className: "text-sm text-green-600 mt-1" }, 
+                                        `Breaking ${num2} into 10 + ${num2 - 10} makes multiplication easier!`
+                                    )
                                 )
                             )
                         ),
