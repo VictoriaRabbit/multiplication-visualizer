@@ -3,13 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiplication Rectangle Visualizer</title>
+    <title>Multiplication Practice Quiz</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { margin: 0; font-family: system-ui, -apple-system, sans-serif; }
+        .celebration {
+            animation: celebration 0.8s ease-in-out;
+        }
+        @keyframes celebration {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -18,7 +26,7 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // Lucide icons as simple SVG components
+        // Icons
         const Play = () => (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polygon points="5,3 19,12 5,21 5,3"></polygon>
@@ -39,35 +47,98 @@
             </svg>
         );
         
-        const Eye = () => (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-        );
-        
-        const EyeOff = () => (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                <line x1="1" y1="1" x2="23" y2="23"></line>
+        const Trophy = () => (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                <path d="M4 22h16"></path>
+                <path d="M10 14.66V17c0 .55.47.98.97 1.21C11.56 18.75 12.23 19 13 19c.77 0 1.44-.25 2.03-.79.5-.23.97-.66.97-1.21v-2.34"></path>
+                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
             </svg>
         );
 
-        const MultiplicationVisualizer = () => {
+        const Star = () => (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
+            </svg>
+        );
+
+        const MultiplicationPractice = () => {
             const [num1, setNum1] = useState(4);
             const [num2, setNum2] = useState(6);
+            const [userAnswer, setUserAnswer] = useState('');
+            const [showReward, setShowReward] = useState(false);
+            const [isCorrect, setIsCorrect] = useState(null);
             const [isAnimating, setIsAnimating] = useState(false);
             const [currentCount, setCurrentCount] = useState(0);
-            const [showNumbers, setShowNumbers] = useState(true);
-            const [animationSpeed, setAnimationSpeed] = useState(100);
             const [colorMode, setColorMode] = useState('fill');
             const [isSelecting, setIsSelecting] = useState(false);
             const [selectionEnd, setSelectionEnd] = useState({ row: 0, col: 0 });
             const [isDragging, setIsDragging] = useState(false);
+            const [animationSpeed, setAnimationSpeed] = useState(100);
+            
+            // Practice tracking
+            const [practices, setPractices] = useState({
+                singleDigit: 0,    // 1-9 × 1-9
+                doubleDigit: 0,    // 10-99 involved
+                tripleDigit: 0     // 100+ involved
+            });
 
             const maxSize = 50;
             const cellSize = Math.max(15, Math.min(25, 600 / Math.max(num1, num2)));
+            const correctAnswer = num1 * num2;
 
+            // Determine digit category
+            const getDigitCategory = (n1, n2) => {
+                const max = Math.max(n1, n2);
+                if (max >= 100) return 'tripleDigit';
+                if (max >= 10) return 'doubleDigit';
+                return 'singleDigit';
+            };
+
+            // Generate new problem
+            const generateNewProblem = () => {
+                const newNum1 = Math.floor(Math.random() * 15) + 2; // 2-16
+                const newNum2 = Math.floor(Math.random() * 15) + 2; // 2-16
+                setNum1(newNum1);
+                setNum2(newNum2);
+                setUserAnswer('');
+                setIsCorrect(null);
+                setShowReward(false);
+                resetAnimation();
+            };
+
+            const checkAnswer = () => {
+                const userNum = parseInt(userAnswer);
+                const category = getDigitCategory(num1, num2);
+                
+                if (userNum === correctAnswer) {
+                    setIsCorrect(true);
+                    setShowReward(true);
+                    setPractices(prev => ({
+                        ...prev,
+                        [category]: prev[category] + 1
+                    }));
+                    
+                    // Auto-generate new problem after celebration
+                    setTimeout(() => {
+                        generateNewProblem();
+                    }, 2000);
+                } else {
+                    setIsCorrect(false);
+                    setTimeout(() => {
+                        setIsCorrect(null);
+                    }, 1500);
+                }
+            };
+
+            const handleKeyPress = (e) => {
+                if (e.key === 'Enter' && userAnswer.trim() !== '' && !showReward) {
+                    checkAnswer();
+                }
+            };
+
+            // Animation logic
             useEffect(() => {
                 if (isAnimating && currentCount < num1 * num2) {
                     const timer = setTimeout(() => {
@@ -87,10 +158,6 @@
             const resetAnimation = () => {
                 setIsAnimating(false);
                 setCurrentCount(0);
-            };
-
-            const toggleAnimation = () => {
-                setIsAnimating(!isAnimating);
             };
 
             const showAll = () => {
@@ -194,7 +261,7 @@
                     const col = i % num2;
                     const isInSelection = isSelecting && row <= selectionEnd.row && col <= selectionEnd.col;
                     const isVisible = i < currentCount || (!isAnimating && currentCount === 0);
-                    const showCellNumber = showNumbers && isVisible && (isInSelection || isAnimating);
+                    const showCellNumber = isVisible && (isInSelection || isAnimating);
                     
                     let cellNumber = i + 1;
                     if (isInSelection && !isAnimating) {
@@ -224,83 +291,93 @@
                 React.createElement('div', { className: "max-w-6xl mx-auto" },
                     // Header
                     React.createElement('div', { className: "text-center mb-8" },
-                        React.createElement('h1', { className: "text-4xl font-bold text-indigo-800 mb-2" }, "Multiplication Rectangle Visualizer"),
-                        React.createElement('p', { className: "text-indigo-600" }, "See multiplication as arrays of unit cells")
+                        React.createElement('h1', { className: "text-4xl font-bold text-indigo-800 mb-2" }, "Multiplication Practice Quiz"),
+                        React.createElement('p', { className: "text-indigo-600" }, "Solve problems and earn rewards!")
                     ),
-                    
-                    // Controls
-                    React.createElement('div', { className: "bg-white rounded-lg p-6 shadow-md mb-6" },
-                        React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" },
-                            // Number inputs
-                            React.createElement('div', null,
-                                React.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-2" }, "First Number"),
-                                React.createElement('input', {
-                                    type: "number",
-                                    min: "1",
-                                    max: maxSize,
-                                    value: num1,
-                                    onChange: (e) => {
-                                        const val = Math.min(maxSize, Math.max(1, parseInt(e.target.value) || 1));
-                                        setNum1(val);
-                                        resetAnimation();
-                                    },
-                                    className: "w-full p-2 border border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none"
-                                })
+
+                    // Practice Counter
+                    React.createElement('div', { className: "bg-white rounded-lg p-4 shadow-md mb-6" },
+                        React.createElement('h3', { className: "text-lg font-semibold text-gray-800 mb-3" }, "Practice Progress"),
+                        React.createElement('div', { className: "grid grid-cols-3 gap-4" },
+                            React.createElement('div', { className: "text-center p-3 bg-green-100 rounded-lg" },
+                                React.createElement('div', { className: "text-2xl font-bold text-green-600" }, practices.singleDigit),
+                                React.createElement('div', { className: "text-sm text-green-600" }, "Single Digit"),
+                                React.createElement('div', { className: "text-xs text-gray-500" }, "1-9 × 1-9")
                             ),
-                            React.createElement('div', null,
-                                React.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-2" }, "Second Number"),
-                                React.createElement('input', {
-                                    type: "number",
-                                    min: "1",
-                                    max: maxSize,
-                                    value: num2,
-                                    onChange: (e) => {
-                                        const val = Math.min(maxSize, Math.max(1, parseInt(e.target.value) || 1));
-                                        setNum2(val);
-                                        resetAnimation();
-                                    },
-                                    className: "w-full p-2 border border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none"
-                                })
+                            React.createElement('div', { className: "text-center p-3 bg-blue-100 rounded-lg" },
+                                React.createElement('div', { className: "text-2xl font-bold text-blue-600" }, practices.doubleDigit),
+                                React.createElement('div', { className: "text-sm text-blue-600" }, "Double Digit"),
+                                React.createElement('div', { className: "text-xs text-gray-500" }, "10-99 involved")
                             ),
-                            // Speed
-                            React.createElement('div', null,
-                                React.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-2" }, "Speed"),
-                                React.createElement('select', {
-                                    value: animationSpeed,
-                                    onChange: (e) => setAnimationSpeed(parseInt(e.target.value)),
-                                    className: "w-full p-2 border border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none"
-                                },
-                                    React.createElement('option', { value: 50 }, "Fast"),
-                                    React.createElement('option', { value: 100 }, "Medium"),
-                                    React.createElement('option', { value: 200 }, "Slow")
-                                )
-                            ),
-                            // Color Mode
-                            React.createElement('div', null,
-                                React.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-2" }, "Color Mode"),
-                                React.createElement('select', {
-                                    value: colorMode,
-                                    onChange: (e) => setColorMode(e.target.value),
-                                    className: "w-full p-2 border border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none"
-                                },
-                                    React.createElement('option', { value: "fill" }, "Solid Blue"),
-                                    React.createElement('option', { value: "rows" }, "Row Colors"),
-                                    React.createElement('option', { value: "rainbow" }, "Rainbow")
-                                )
+                            React.createElement('div', { className: "text-center p-3 bg-purple-100 rounded-lg" },
+                                React.createElement('div', { className: "text-2xl font-bold text-purple-600" }, practices.tripleDigit),
+                                React.createElement('div', { className: "text-sm text-purple-600" }, "Triple Digit"),
+                                React.createElement('div', { className: "text-xs text-gray-500" }, "100+ involved")
                             )
-                        ),
-                        
-                        // Action Buttons
-                        React.createElement('div', { className: "flex flex-wrap gap-3 mt-6" },
+                        )
+                    ),
+
+                    // Quiz Section
+                    React.createElement('div', { className: "text-center mb-6" },
+                        React.createElement('div', { 
+                            className: `bg-white rounded-lg p-8 shadow-md inline-block ${showReward ? 'celebration' : ''}` 
+                        },
+                            React.createElement('div', { className: "text-5xl font-bold text-gray-800 mb-6 flex items-center justify-center gap-4" },
+                                `${num1} × ${num2} = `,
+                                React.createElement('input', {
+                                    type: "number",
+                                    value: userAnswer,
+                                    onChange: (e) => setUserAnswer(e.target.value),
+                                    onKeyPress: handleKeyPress,
+                                    className: `text-4xl text-center border-2 border-gray-300 rounded-lg px-4 py-2 w-32 focus:border-indigo-500 focus:outline-none ${
+                                        isCorrect === true ? 'border-green-500 bg-green-50' : 
+                                        isCorrect === false ? 'border-red-500 bg-red-50' : ''
+                                    }`,
+                                    placeholder: "?",
+                                    disabled: showReward
+                                })
+                            ),
+
+                            React.createElement('div', { className: "mb-4" },
+                                React.createElement('button', {
+                                    onClick: checkAnswer,
+                                    disabled: userAnswer.trim() === '' || showReward,
+                                    className: "bg-indigo-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                                }, "Check Answer")
+                            ),
+
+                            // Feedback
+                            isCorrect === true && showReward && React.createElement('div', { 
+                                className: "mt-4 p-4 bg-green-100 text-green-800 rounded-lg flex items-center justify-center gap-2" 
+                            },
+                                React.createElement(Trophy),
+                                React.createElement('span', { className: "text-xl font-bold" }, "🎉 Excellent! "),
+                                Array.from({length: 5}, (_, i) => React.createElement(Star, { key: i, className: "text-yellow-500" }))
+                            ),
+
+                            isCorrect === false && React.createElement('div', { 
+                                className: "mt-4 p-4 bg-red-100 text-red-800 rounded-lg" 
+                            },
+                                React.createElement('span', { className: "text-lg font-semibold" }, `Not quite! The answer is ${correctAnswer}`)
+                            ),
+
+                            React.createElement('div', { className: "mt-4" },
+                                React.createElement('button', {
+                                    onClick: generateNewProblem,
+                                    className: "bg-green-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors"
+                                }, "New Problem")
+                            )
+                        )
+                    ),
+
+                    // Visualization Controls
+                    React.createElement('div', { className: "bg-white rounded-lg p-6 shadow-md mb-6" },
+                        React.createElement('h3', { className: "text-lg font-semibold text-gray-700 mb-4" }, "Visual Helper"),
+                        React.createElement('div', { className: "flex flex-wrap gap-3" },
                             React.createElement('button', {
                                 onClick: startAnimation,
                                 className: "bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center gap-2"
-                            }, React.createElement(Play), "Start"),
-                            
-                            React.createElement('button', {
-                                onClick: toggleAnimation,
-                                className: "bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
-                            }, isAnimating ? React.createElement(Pause) : React.createElement(Play), isAnimating ? 'Pause' : 'Resume'),
+                            }, React.createElement(Play), "Count Units"),
                             
                             React.createElement('button', {
                                 onClick: showAll,
@@ -316,21 +393,16 @@
                                 onClick: clearSelection,
                                 className: "bg-orange-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-700 transition-colors"
                             }, "Clear Selection"),
-                            
-                            React.createElement('button', {
-                                onClick: () => setShowNumbers(!showNumbers),
-                                className: "bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2"
-                            }, showNumbers ? React.createElement(EyeOff) : React.createElement(Eye), showNumbers ? 'Hide' : 'Show', " Numbers")
-                        )
-                    ),
-                    
-                    // Equation Display
-                    React.createElement('div', { className: "text-center mb-6" },
-                        React.createElement('div', { className: "bg-white rounded-lg p-6 shadow-md inline-block" },
-                            React.createElement('div', { className: "text-3xl font-bold text-gray-800 mb-2" }, `${num1} × ${num2} = ${num1 * num2}`),
-                            React.createElement('div', { className: "text-lg text-gray-600 mt-2" }, `${num1} rows × ${num2} columns = ${currentCount > 0 ? currentCount : num1 * num2} unit cells`),
-                            isSelecting && React.createElement('div', { className: "text-lg text-orange-600 mt-2 p-2 bg-orange-50 rounded" }, `Selected: ${selectionEnd.row + 1} × ${selectionEnd.col + 1} = ${(selectionEnd.row + 1) * (selectionEnd.col + 1)} cells`),
-                            isAnimating && React.createElement('div', { className: "text-sm text-blue-600 mt-2" }, `Counting: ${currentCount} / ${num1 * num2}`)
+
+                            React.createElement('select', {
+                                value: colorMode,
+                                onChange: (e) => setColorMode(e.target.value),
+                                className: "px-4 py-2 border border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none"
+                            },
+                                React.createElement('option', { value: "fill" }, "Solid Blue"),
+                                React.createElement('option', { value: "rows" }, "Row Colors"),
+                                React.createElement('option', { value: "rainbow" }, "Rainbow")
+                            )
                         )
                     ),
                     
@@ -392,20 +464,21 @@
                             )
                         ),
                         
-                        // Dimension Labels
+                        // Grid info
                         React.createElement('div', { className: "mt-4 text-center text-sm text-gray-600" },
                             React.createElement('div', { className: "mb-2" },
-                                React.createElement('span', { className: "inline-block bg-blue-100 px-3 py-1 rounded-full mr-4" }, `Width: ${num2} units`),
-                                React.createElement('span', { className: "inline-block bg-green-100 px-3 py-1 rounded-full" }, `Height: ${num1} units`)
+                                React.createElement('span', { className: "inline-block bg-blue-100 px-3 py-1 rounded-full mr-4" }, `${num1} rows × ${num2} columns`),
+                                isSelecting && React.createElement('span', { className: "inline-block bg-orange-100 px-3 py-1 rounded-full" }, 
+                                    `Selected: ${selectionEnd.row + 1} × ${selectionEnd.col + 1} = ${(selectionEnd.row + 1) * (selectionEnd.col + 1)} cells`)
                             ),
-                            React.createElement('div', { className: "text-xs text-gray-500" }, "Each small square represents one unit. Count them all to get the product!")
+                            React.createElement('div', { className: "text-xs text-gray-500" }, "Use the grid to visualize the multiplication!")
                         )
                     )
                 )
             );
         };
 
-        ReactDOM.render(React.createElement(MultiplicationVisualizer), document.getElementById('root'));
+        ReactDOM.render(React.createElement(MultiplicationPractice), document.getElementById('root'));
     </script>
 </body>
 </html>
