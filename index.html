@@ -85,8 +85,8 @@
         );
 
         const MultiplicationPractice = () => {
-            const [num1, setNum1] = useState(4);
-            const [num2, setNum2] = useState(6);
+            const [num1, setNum1] = useState(12);
+            const [num2, setNum2] = useState(8);
             const [userAnswer, setUserAnswer] = useState('');
             const [showReward, setShowReward] = useState(false);
             const [isCorrect, setIsCorrect] = useState(null);
@@ -118,9 +118,21 @@
             };
 
             // Generate new problem
+            // Generate new problem - ensure at least one double digit
             const generateNewProblem = () => {
-                const newNum1 = Math.floor(Math.random() * 30) + 1; // 1-30
-                const newNum2 = Math.floor(Math.random() * 30) + 1; // 1-30
+                let newNum1, newNum2;
+                
+                // Ensure at least one number is double digit (10-30)
+                const useDoubleDigitFirst = Math.random() < 0.5;
+                
+                if (useDoubleDigitFirst) {
+                    newNum1 = Math.floor(Math.random() * 21) + 10; // 10-30
+                    newNum2 = Math.floor(Math.random() * 30) + 1;   // 1-30
+                } else {
+                    newNum1 = Math.floor(Math.random() * 30) + 1;   // 1-30
+                    newNum2 = Math.floor(Math.random() * 21) + 10; // 10-30
+                }
+                
                 setNum1(newNum1);
                 setNum2(newNum2);
                 setUserAnswer('');
@@ -141,10 +153,7 @@
                         [category]: prev[category] + 1
                     }));
                     
-                    // Auto-generate new problem after celebration
-                    setTimeout(() => {
-                        generateNewProblem();
-                    }, 2000);
+                    // Don't auto-generate new problem - let user explore the visualization
                 } else {
                     setIsCorrect(false);
                     setTimeout(() => {
@@ -567,7 +576,7 @@
                                 ),
 
                                 // Bottom column counts for breakdown visualization
-                                num2 > 10 && React.createElement('div', { 
+                                (isSelecting ? (selectionEnd.col + 1) : num2) > 10 && React.createElement('div', { 
                                     className: "flex justify-center mt-4", 
                                     style: { marginLeft: cellSize * 0.8 + 8 + 16 } 
                                 },
@@ -575,29 +584,49 @@
                                         // First 10 columns count
                                         React.createElement('div', { 
                                             className: "text-center p-3 bg-red-100 border-2 border-red-300 rounded-lg",
-                                            style: { width: cellSize * 10 + 36 } // 10 cells + gaps
+                                            style: { width: cellSize * Math.min(10, (isSelecting ? (selectionEnd.col + 1) : num2)) + 36 }
                                         },
-                                            React.createElement('div', { className: "text-lg font-bold text-red-700" }, `${num1} × 10 = ${num1 * 10}`),
-                                            React.createElement('div', { className: "text-sm text-red-600" }, "First 10 columns")
+                                            React.createElement('div', { className: "text-lg font-bold text-red-700" }, 
+                                                isSelecting ? 
+                                                `${selectionEnd.row + 1} × ${Math.min(10, selectionEnd.col + 1)} = ${(selectionEnd.row + 1) * Math.min(10, selectionEnd.col + 1)}` :
+                                                `${num1} × 10 = ${num1 * 10}`
+                                            ),
+                                            React.createElement('div', { className: "text-sm text-red-600" }, 
+                                                isSelecting ? 
+                                                `First ${Math.min(10, selectionEnd.col + 1)} columns` :
+                                                "First 10 columns"
+                                            )
                                         ),
                                         
-                                        // Remaining columns count
-                                        React.createElement('div', { 
+                                        // Remaining columns count (only show if there are remaining columns)
+                                        (isSelecting ? (selectionEnd.col + 1) : num2) > 10 && React.createElement('div', { 
                                             className: "text-center p-3 bg-blue-100 border-2 border-blue-300 rounded-lg",
-                                            style: { width: cellSize * (num2 - 10) + (num2 - 10) * 4 - 4 } // remaining cells + gaps
+                                            style: { width: cellSize * ((isSelecting ? (selectionEnd.col + 1) : num2) - 10) + ((isSelecting ? (selectionEnd.col + 1) : num2) - 10) * 4 - 4 }
                                         },
-                                            React.createElement('div', { className: "text-lg font-bold text-blue-700" }, `${num1} × ${num2 - 10} = ${num1 * (num2 - 10)}`),
-                                            React.createElement('div', { className: "text-sm text-blue-600" }, `Last ${num2 - 10} columns`)
+                                            React.createElement('div', { className: "text-lg font-bold text-blue-700" }, 
+                                                isSelecting ?
+                                                `${selectionEnd.row + 1} × ${selectionEnd.col + 1 - 10} = ${(selectionEnd.row + 1) * (selectionEnd.col + 1 - 10)}` :
+                                                `${num1} × ${num2 - 10} = ${num1 * (num2 - 10)}`
+                                            ),
+                                            React.createElement('div', { className: "text-sm text-blue-600" }, 
+                                                isSelecting ?
+                                                `Last ${selectionEnd.col + 1 - 10} columns` :
+                                                `Last ${num2 - 10} columns`
+                                            )
                                         )
                                     )
                                 ),
 
                                 // Total breakdown explanation
-                                num2 > 10 && React.createElement('div', { className: "text-center mt-3 p-3 bg-green-100 border-2 border-green-300 rounded-lg" },
+                                (isSelecting ? (selectionEnd.col + 1) : num2) > 10 && React.createElement('div', { className: "text-center mt-3 p-3 bg-green-100 border-2 border-green-300 rounded-lg" },
                                     React.createElement('div', { className: "text-xl font-bold text-green-700" }, 
+                                        isSelecting ?
+                                        `${selectionEnd.row + 1} × ${selectionEnd.col + 1} = ${(selectionEnd.row + 1) * Math.min(10, selectionEnd.col + 1)} + ${selectionEnd.col + 1 > 10 ? (selectionEnd.row + 1) * (selectionEnd.col + 1 - 10) : 0} = ${(selectionEnd.row + 1) * (selectionEnd.col + 1)}` :
                                         `${num1} × ${num2} = ${num1 * 10} + ${num1 * (num2 - 10)} = ${num1 * num2}`
                                     ),
                                     React.createElement('div', { className: "text-sm text-green-600 mt-1" }, 
+                                        isSelecting ?
+                                        `Breaking ${selectionEnd.col + 1} into ${Math.min(10, selectionEnd.col + 1)}${selectionEnd.col + 1 > 10 ? ` + ${selectionEnd.col + 1 - 10}` : ''} makes multiplication easier!` :
                                         `Breaking ${num2} into 10 + ${num2 - 10} makes multiplication easier!`
                                     )
                                 )
