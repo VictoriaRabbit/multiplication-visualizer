@@ -669,61 +669,68 @@
                                     )
                                 ),
 
-                                // Bottom column counts for breakdown visualization
-                                (isSelecting ? (selectionEnd.col + 1) : num2) > 10 && React.createElement('div', { 
-                                    className: "flex justify-center mt-4", 
-                                    style: { marginLeft: cellSize * 0.8 + 8 + 16 } 
+                                // Bottom breakdown showing all 4 products for area model
+                                currentBreakdown && React.createElement('div', { 
+                                    className: "mt-6 p-4 bg-gray-50 rounded-lg border-2 border-gray-300"
                                 },
-                                    React.createElement('div', { className: "flex gap-2" },
-                                        // First 10 columns count
-                                        React.createElement('div', { 
-                                            className: "text-center p-3 bg-red-100 border-2 border-red-300 rounded-lg",
-                                            style: { width: cellSize * Math.min(10, (isSelecting ? (selectionEnd.col + 1) : num2)) + 36 }
-                                        },
-                                            React.createElement('div', { className: "text-lg font-bold text-red-700" }, 
-                                                isSelecting ? 
-                                                `${selectionEnd.row + 1} × ${Math.min(10, selectionEnd.col + 1)} = ${(selectionEnd.row + 1) * Math.min(10, selectionEnd.col + 1)}` :
-                                                `${num1} × 10 = ${num1 * 10}`
+                                    React.createElement('h4', { className: "text-center text-lg font-semibold text-gray-800 mb-4" }, "Area Model Calculation"),
+                                    
+                                    // Four boxes showing each product
+                                    React.createElement('div', { className: "grid grid-cols-2 gap-3 mb-4" },
+                                        // Top-left product
+                                        React.createElement('div', { className: "text-center p-3 bg-red-100 border-2 border-red-300 rounded-lg" },
+                                            React.createElement('div', { className: "text-xl font-bold text-red-700" }, 
+                                                `${currentBreakdown.topLeft.rows} × ${currentBreakdown.topLeft.cols} = ${currentBreakdown.topLeft.product}`
                                             ),
-                                            React.createElement('div', { className: "text-sm text-red-600" }, 
-                                                isSelecting ? 
-                                                `First ${Math.min(10, selectionEnd.col + 1)} columns` :
-                                                "First 10 columns"
-                                            )
+                                            React.createElement('div', { className: "text-sm text-red-600" }, "Top-Left Area")
                                         ),
                                         
-                                        // Remaining columns count (only show if there are remaining columns)
-                                        (isSelecting ? (selectionEnd.col + 1) : num2) > 10 && React.createElement('div', { 
-                                            className: "text-center p-3 bg-blue-100 border-2 border-blue-300 rounded-lg",
-                                            style: { width: cellSize * ((isSelecting ? (selectionEnd.col + 1) : num2) - 10) + ((isSelecting ? (selectionEnd.col + 1) : num2) - 10) * 4 - 4 }
-                                        },
-                                            React.createElement('div', { className: "text-lg font-bold text-blue-700" }, 
-                                                isSelecting ?
-                                                `${selectionEnd.row + 1} × ${selectionEnd.col + 1 - 10} = ${(selectionEnd.row + 1) * (selectionEnd.col + 1 - 10)}` :
-                                                `${num1} × ${num2 - 10} = ${num1 * (num2 - 10)}`
+                                        // Top-right product (if exists)
+                                        currentBreakdown.topRight ? React.createElement('div', { className: "text-center p-3 bg-blue-100 border-2 border-blue-300 rounded-lg" },
+                                            React.createElement('div', { className: "text-xl font-bold text-blue-700" }, 
+                                                `${currentBreakdown.topRight.rows} × ${currentBreakdown.topRight.cols} = ${currentBreakdown.topRight.product}`
                                             ),
-                                            React.createElement('div', { className: "text-sm text-blue-600" }, 
-                                                isSelecting ?
-                                                `Last ${selectionEnd.col + 1 - 10} columns` :
-                                                `Last ${num2 - 10} columns`
-                                            )
+                                            React.createElement('div', { className: "text-sm text-blue-600" }, "Top-Right Area")
+                                        ) : React.createElement('div', { className: "text-center p-3 bg-gray-100 border-2 border-gray-300 rounded-lg opacity-50" },
+                                            React.createElement('div', { className: "text-lg text-gray-500" }, "No top-right area"),
+                                            React.createElement('div', { className: "text-xs text-gray-400" }, "Columns ≤ break point")
+                                        ),
+                                        
+                                        // Bottom-left product (if exists)
+                                        currentBreakdown.bottomLeft ? React.createElement('div', { className: "text-center p-3 bg-green-100 border-2 border-green-300 rounded-lg" },
+                                            React.createElement('div', { className: "text-xl font-bold text-green-700" }, 
+                                                `${currentBreakdown.bottomLeft.rows} × ${currentBreakdown.bottomLeft.cols} = ${currentBreakdown.bottomLeft.product}`
+                                            ),
+                                            React.createElement('div', { className: "text-sm text-green-600" }, "Bottom-Left Area")
+                                        ) : React.createElement('div', { className: "text-center p-3 bg-gray-100 border-2 border-gray-300 rounded-lg opacity-50" },
+                                            React.createElement('div', { className: "text-lg text-gray-500" }, "No bottom-left area"),
+                                            React.createElement('div', { className: "text-xs text-gray-400" }, "Rows ≤ break point")
+                                        ),
+                                        
+                                        // Bottom-right product (if exists)
+                                        currentBreakdown.bottomRight ? React.createElement('div', { className: "text-center p-3 bg-yellow-100 border-2 border-yellow-300 rounded-lg" },
+                                            React.createElement('div', { className: "text-xl font-bold text-yellow-700" }, 
+                                                `${currentBreakdown.bottomRight.rows} × ${currentBreakdown.bottomRight.cols} = ${currentBreakdown.bottomRight.product}`
+                                            ),
+                                            React.createElement('div', { className: "text-sm text-yellow-600" }, "Bottom-Right Area")
+                                        ) : React.createElement('div', { className: "text-center p-3 bg-gray-100 border-2 border-gray-300 rounded-lg opacity-50" },
+                                            React.createElement('div', { className: "text-lg text-gray-500" }, "No bottom-right area"),
+                                            React.createElement('div', { className: "text-xs text-gray-400" }, "No remaining rows/cols")
+                                        )
+                                    ),
+                                    
+                                    // Final sum equation
+                                    React.createElement('div', { className: "text-center p-4 bg-purple-100 border-2 border-purple-300 rounded-lg" },
+                                        React.createElement('div', { className: "text-2xl font-bold text-purple-700 mb-2" },
+                                            `${currentBreakdown.topLeft.product}${currentBreakdown.topRight ? ' + ' + currentBreakdown.topRight.product : ''}${currentBreakdown.bottomLeft ? ' + ' + currentBreakdown.bottomLeft.product : ''}${currentBreakdown.bottomRight ? ' + ' + currentBreakdown.bottomRight.product : ''} = ${currentBreakdown.topLeft.product + (currentBreakdown.topRight?.product || 0) + (currentBreakdown.bottomLeft?.product || 0) + (currentBreakdown.bottomRight?.product || 0)}`
+                                        ),
+                                        React.createElement('div', { className: "text-sm text-purple-600" },
+                                            isSelecting ? 
+                                            `Total for selected ${selectionEnd.row + 1} × ${selectionEnd.col + 1} area` :
+                                            `Total for ${num1} × ${num2}`
                                         )
                                     )
                                 ),
-
-                                // Total breakdown explanation
-                                (isSelecting ? (selectionEnd.col + 1) : num2) > 10 && React.createElement('div', { className: "text-center mt-3 p-3 bg-green-100 border-2 border-green-300 rounded-lg" },
-                                    React.createElement('div', { className: "text-xl font-bold text-green-700" }, 
-                                        isSelecting ?
-                                        `${selectionEnd.row + 1} × ${selectionEnd.col + 1} = ${(selectionEnd.row + 1) * Math.min(10, selectionEnd.col + 1)} + ${selectionEnd.col + 1 > 10 ? (selectionEnd.row + 1) * (selectionEnd.col + 1 - 10) : 0} = ${(selectionEnd.row + 1) * (selectionEnd.col + 1)}` :
-                                        `${num1} × ${num2} = ${num1 * 10} + ${num1 * (num2 - 10)} = ${num1 * num2}`
-                                    ),
-                                    React.createElement('div', { className: "text-sm text-green-600 mt-1" }, 
-                                        isSelecting ?
-                                        `Breaking ${selectionEnd.col + 1} into ${Math.min(10, selectionEnd.col + 1)}${selectionEnd.col + 1 > 10 ? ` + ${selectionEnd.col + 1 - 10}` : ''} makes multiplication easier!` :
-                                        `Breaking ${num2} into 10 + ${num2 - 10} makes multiplication easier!`
-                                    )
-                                )
                             )
                         ),
                         
