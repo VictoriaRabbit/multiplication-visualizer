@@ -135,6 +135,12 @@
             const currentBreakdown = isSelecting ? 
                 getAreaBreakdown(selectionEnd.row + 1, selectionEnd.col + 1) : 
                 getAreaBreakdown(num1, num2);
+            
+            // Debug: log breakdown info
+            if (currentBreakdown) {
+                console.log('Current breakdown:', currentBreakdown);
+                console.log('Active area:', isSelecting ? `${selectionEnd.row + 1}×${selectionEnd.col + 1}` : `${num1}×${num2}`);
+            }
 
             // Determine digit category
             const getDigitCategory = (n1, n2) => {
@@ -228,7 +234,32 @@
                 const isInSelection = isSelecting && row <= selectionEnd.row && col <= selectionEnd.col;
                 const isVisible = index < currentCount || (!isAnimating && currentCount === 0);
                 
-                if (isInSelection && !isAnimating) {
+                // Area model coloring - apply to selected area or full grid
+                if (currentBreakdown && !isAnimating) {
+                    const activeRows = isSelecting ? selectionEnd.row + 1 : num1;
+                    const activeCols = isSelecting ? selectionEnd.col + 1 : num2;
+                    const rowBreak = currentBreakdown.topLeft.rows;
+                    const colBreak = currentBreakdown.topLeft.cols;
+                    
+                    // Only color cells within the active area
+                    if (row < activeRows && col < activeCols) {
+                        if (row < rowBreak && col < colBreak) {
+                            // Top-left quadrant - RED
+                            return 'bg-red-300 border-red-500 border-2';
+                        } else if (row < rowBreak && col >= colBreak) {
+                            // Top-right quadrant - BLUE
+                            return 'bg-blue-300 border-blue-500 border-2';
+                        } else if (row >= rowBreak && col < colBreak) {
+                            // Bottom-left quadrant - GREEN  
+                            return 'bg-green-300 border-green-500 border-2';
+                        } else if (row >= rowBreak && col >= colBreak) {
+                            // Bottom-right quadrant - YELLOW
+                            return 'bg-yellow-300 border-yellow-500 border-2';
+                        }
+                    }
+                }
+                
+                if (isInSelection && !isAnimating && !currentBreakdown) {
                     return 'bg-orange-300 border-orange-400 shadow-md';
                 }
                 
