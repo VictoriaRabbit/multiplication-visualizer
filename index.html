@@ -107,7 +107,8 @@
 
             // Get breakdown parts for area model
             const getAreaBreakdown = (rows, cols) => {
-                if (rows <= 10 && cols <= 10) return null;
+                // Always show breakdown for larger numbers to demonstrate the concept
+                if (rows < 10 && cols < 10) return null;
                 
                 // Break at 10 for easier mental math, or at 20/30 for larger numbers
                 const getBreakPoint = (num) => {
@@ -140,7 +141,12 @@
             if (currentBreakdown) {
                 console.log('Current breakdown:', currentBreakdown);
                 console.log('Active area:', isSelecting ? `${selectionEnd.row + 1}×${selectionEnd.col + 1}` : `${num1}×${num2}`);
+            } else {
+                console.log('No breakdown for:', isSelecting ? `${selectionEnd.row + 1}×${selectionEnd.col + 1}` : `${num1}×${num2}`);
             }
+
+            // Force show vertical expression for testing with any number >= 10
+            const showVerticalExpression = (isSelecting ? Math.max(selectionEnd.row + 1, selectionEnd.col + 1) : Math.max(num1, num2)) >= 10;
 
             // Determine digit category
             const getDigitCategory = (n1, n2) => {
@@ -407,7 +413,7 @@
                                     `First Number: ${num1}`
                                 ),
                                 
-                                // Area model labels overlaid on grid sections
+                                // Area model legend overlaid on grid sections
                                 currentBreakdown && React.createElement('div', {
                                     className: "absolute inset-0 pointer-events-none",
                                     style: { 
@@ -415,49 +421,49 @@
                                         marginTop: cellSize * 0.6 + 8 + 16 // Account for top margin and padding
                                     }
                                 },
-                                    // Top-left area label
+                                    // Top-left area legend
                                     React.createElement('div', {
-                                        className: "absolute bg-red-200 bg-opacity-90 rounded px-2 py-1 text-sm font-bold text-red-800 border-2 border-red-400 flex items-center justify-center",
+                                        className: "absolute bg-red-400 bg-opacity-80 rounded-lg px-3 py-2 text-white font-bold shadow-lg border-2 border-red-600",
                                         style: {
-                                            left: cellSize * currentBreakdown.topLeft.cols / 2 - 30,
-                                            top: cellSize * currentBreakdown.topLeft.rows / 2 - 12,
-                                            minWidth: '60px',
-                                            fontSize: cellSize < 15 ? '10px' : '12px'
+                                            left: cellSize * currentBreakdown.topLeft.cols / 2 - 40,
+                                            top: cellSize * currentBreakdown.topLeft.rows / 2 - 15,
+                                            fontSize: cellSize < 15 ? '12px' : '14px',
+                                            minWidth: '80px'
                                         }
-                                    }, `${currentBreakdown.topLeft.rows}×${currentBreakdown.topLeft.cols}=${currentBreakdown.topLeft.product}`),
+                                    }, `${currentBreakdown.topLeft.rows} × ${currentBreakdown.topLeft.cols}`),
                                     
-                                    // Top-right area label
+                                    // Top-right area legend
                                     currentBreakdown.topRight && React.createElement('div', {
-                                        className: "absolute bg-blue-200 bg-opacity-90 rounded px-2 py-1 text-sm font-bold text-blue-800 border-2 border-blue-400 flex items-center justify-center",
+                                        className: "absolute bg-blue-400 bg-opacity-80 rounded-lg px-3 py-2 text-white font-bold shadow-lg border-2 border-blue-600",
                                         style: {
-                                            left: cellSize * currentBreakdown.topLeft.cols + cellSize * currentBreakdown.topRight.cols / 2 - 30,
-                                            top: cellSize * currentBreakdown.topRight.rows / 2 - 12,
-                                            minWidth: '60px',
-                                            fontSize: cellSize < 15 ? '10px' : '12px'
+                                            left: cellSize * currentBreakdown.topLeft.cols + cellSize * currentBreakdown.topRight.cols / 2 - 40,
+                                            top: cellSize * currentBreakdown.topRight.rows / 2 - 15,
+                                            fontSize: cellSize < 15 ? '12px' : '14px',
+                                            minWidth: '80px'
                                         }
-                                    }, `${currentBreakdown.topRight.rows}×${currentBreakdown.topRight.cols}=${currentBreakdown.topRight.product}`),
+                                    }, `${currentBreakdown.topRight.rows} × ${currentBreakdown.topRight.cols}`),
                                     
-                                    // Bottom-left area label
+                                    // Bottom-left area legend
                                     currentBreakdown.bottomLeft && React.createElement('div', {
-                                        className: "absolute bg-green-200 bg-opacity-90 rounded px-2 py-1 text-sm font-bold text-green-800 border-2 border-green-400 flex items-center justify-center",
+                                        className: "absolute bg-green-400 bg-opacity-80 rounded-lg px-3 py-2 text-white font-bold shadow-lg border-2 border-green-600",
                                         style: {
-                                            left: cellSize * currentBreakdown.bottomLeft.cols / 2 - 30,
-                                            top: cellSize * currentBreakdown.topLeft.rows + cellSize * currentBreakdown.bottomLeft.rows / 2 - 12,
-                                            minWidth: '60px',
-                                            fontSize: cellSize < 15 ? '10px' : '12px'
+                                            left: cellSize * currentBreakdown.bottomLeft.cols / 2 - 40,
+                                            top: cellSize * currentBreakdown.topLeft.rows + cellSize * currentBreakdown.bottomLeft.rows / 2 - 15,
+                                            fontSize: cellSize < 15 ? '12px' : '14px',
+                                            minWidth: '80px'
                                         }
-                                    }, `${currentBreakdown.bottomLeft.rows}×${currentBreakdown.bottomLeft.cols}=${currentBreakdown.bottomLeft.product}`),
+                                    }, `${currentBreakdown.bottomLeft.rows} × ${currentBreakdown.bottomLeft.cols}`),
                                     
-                                    // Bottom-right area label
+                                    // Bottom-right area legend
                                     currentBreakdown.bottomRight && React.createElement('div', {
-                                        className: "absolute bg-yellow-200 bg-opacity-90 rounded px-2 py-1 text-sm font-bold text-yellow-800 border-2 border-yellow-400 flex items-center justify-center",
+                                        className: "absolute bg-yellow-400 bg-opacity-80 rounded-lg px-3 py-2 text-black font-bold shadow-lg border-2 border-yellow-600",
                                         style: {
-                                            left: cellSize * currentBreakdown.topLeft.cols + cellSize * currentBreakdown.bottomRight.cols / 2 - 30,
-                                            top: cellSize * currentBreakdown.topLeft.rows + cellSize * currentBreakdown.bottomRight.rows / 2 - 12,
-                                            minWidth: '60px',
-                                            fontSize: cellSize < 15 ? '10px' : '12px'
+                                            left: cellSize * currentBreakdown.topLeft.cols + cellSize * currentBreakdown.bottomRight.cols / 2 - 40,
+                                            top: cellSize * currentBreakdown.topLeft.rows + cellSize * currentBreakdown.bottomRight.rows / 2 - 15,
+                                            fontSize: cellSize < 15 ? '12px' : '14px',
+                                            minWidth: '80px'
                                         }
-                                    }, `${currentBreakdown.bottomRight.rows}×${currentBreakdown.bottomRight.cols}=${currentBreakdown.bottomRight.product}`)
+                                    }, `${currentBreakdown.bottomRight.rows} × ${currentBreakdown.bottomRight.cols}`)
                                 ),
                                 React.createElement('input', {
                                     type: "range",
@@ -700,14 +706,16 @@
                                     )
                                 ),
 
-                                // Bottom breakdown showing all 4 products for area model
-                                currentBreakdown && React.createElement('div', { 
+                                // Show vertical expression for any case where at least one number >= 10
+                                showVerticalExpression && React.createElement('div', { 
                                     className: "mt-6 p-4 bg-gray-50 rounded-lg border-2 border-gray-300"
                                 },
-                                    React.createElement('h4', { className: "text-center text-lg font-semibold text-gray-800 mb-4" }, "Area Model Calculation"),
+                                    React.createElement('h4', { className: "text-center text-lg font-semibold text-gray-800 mb-4" }, 
+                                        currentBreakdown ? "Area Model Calculation" : "Multiplication Methods"
+                                    ),
                                     
-                                    // Container with vertical expression on left and area model on right
-                                    React.createElement('div', { className: "flex gap-6 items-start" },
+                                    // Container with vertical expression on left and area model on right (if applicable)
+                                    React.createElement('div', { className: currentBreakdown ? "flex gap-6 items-start" : "flex justify-center" },
                                         // Vertical multiplication expression
                                         React.createElement('div', { className: "flex-shrink-0 p-4 bg-white border-2 border-indigo-300 rounded-lg" },
                                             React.createElement('div', { className: "text-center" },
@@ -729,8 +737,8 @@
                                             )
                                         ),
                                         
-                                        // Area model breakdown
-                                        React.createElement('div', { className: "flex-grow" },
+                                        // Area model breakdown (only if currentBreakdown exists)
+                                        currentBreakdown && React.createElement('div', { className: "flex-grow" },
                                             React.createElement('div', { className: "text-center mb-3" },
                                                 React.createElement('div', { className: "text-lg font-semibold text-gray-800" }, "Area Model Method")
                                             ),
