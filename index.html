@@ -105,9 +105,36 @@
                 tripleDigit: 0     // 100+ involved
             });
 
+            // Get breakdown parts for area model
+            const getAreaBreakdown = (rows, cols) => {
+                if (rows <= 10 && cols <= 10) return null;
+                
+                // Break at 10 for easier mental math, or at 20/30 for larger numbers
+                const getBreakPoint = (num) => {
+                    if (num <= 10) return num;
+                    if (num <= 20) return 10;
+                    if (num <= 30) return 20;
+                    return 30;
+                };
+                
+                const rowBreak = getBreakPoint(rows);
+                const colBreak = getBreakPoint(cols);
+                
+                return {
+                    topLeft: { rows: rowBreak, cols: colBreak, product: rowBreak * colBreak },
+                    topRight: cols > colBreak ? { rows: rowBreak, cols: cols - colBreak, product: rowBreak * (cols - colBreak) } : null,
+                    bottomLeft: rows > rowBreak ? { rows: rows - rowBreak, cols: colBreak, product: (rows - rowBreak) * colBreak } : null,
+                    bottomRight: (rows > rowBreak && cols > colBreak) ? { rows: rows - rowBreak, cols: cols - colBreak, product: (rows - rowBreak) * (cols - colBreak) } : null
+                };
+            };
             const maxSize = 50;
-            const cellSize = Math.max(15, Math.min(25, 600 / Math.max(num1, num2)));
+            const cellSize = Math.max(12, Math.min(20, 500 / Math.max(num1, num2)));
             const correctAnswer = num1 * num2;
+
+            // Get current breakdown for display
+            const currentBreakdown = isSelecting ? 
+                getAreaBreakdown(selectionEnd.row + 1, selectionEnd.col + 1) : 
+                getAreaBreakdown(num1, num2);
 
             // Determine digit category
             const getDigitCategory = (n1, n2) => {
@@ -240,12 +267,26 @@
                 
                 let borderStyle = '';
                 
-                if (num2 > 10 && col === 9) {
-                    borderStyle += ' border-r-4 border-r-black';
-                }
-                
-                if (num1 > 10 && row === 9) {
-                    borderStyle += ' border-b-4 border-b-black';
+                // Add borders for area model breakdown
+                if (currentBreakdown) {
+                    const activeRows = isSelecting ? selectionEnd.row + 1 : num1;
+                    const activeCols = isSelecting ? selectionEnd.col + 1 : num2;
+                    
+                    const rowBreakPoint = currentBreakdown.topLeft.rows;
+                    const colBreakPoint = currentBreakdown.topLeft.cols;
+                    
+                    // Only show borders within the active selection/full grid
+                    if (row < activeRows && col < activeCols) {
+                        // Vertical border after break column
+                        if (col === colBreakPoint - 1 && activeCols > colBreakPoint) {
+                            borderStyle += ' border-r-4 border-r-black';
+                        }
+                        
+                        // Horizontal border after break row  
+                        if (row === rowBreakPoint - 1 && activeRows > rowBreakPoint) {
+                            borderStyle += ' border-b-4 border-b-black';
+                        }
+                    }
                 }
                 
                 return borderStyle;
@@ -333,6 +374,59 @@
                             React.createElement('div', null,
                                 React.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-2" }, 
                                     `First Number: ${num1}`
+                                ),
+                                
+                                // Area model labels overlaid on grid sections
+                                currentBreakdown && React.createElement('div', {
+                                    className: "absolute inset-0 pointer-events-none",
+                                    style: { 
+                                        marginLeft: cellSize * 0.8 + 8 + 16 + 16, // Account for left margin and padding
+                                        marginTop: cellSize * 0.6 + 8 + 16 // Account for top margin and padding
+                                    }
+                                },
+                                    // Top-left area label
+                                    React.createElement('div', {
+                                        className: "absolute bg-red-200 bg-opacity-90 rounded px-2 py-1 text-sm font-bold text-red-800 border-2 border-red-400 flex items-center justify-center",
+                                        style: {
+                                            left: cellSize * currentBreakdown.topLeft.cols / 2 - 30,
+                                            top: cellSize * currentBreakdown.topLeft.rows / 2 - 12,
+                                            minWidth: '60px',
+                                            fontSize: cellSize < 15 ? '10px' : '12px'
+                                        }
+                                    }, `${currentBreakdown.topLeft.rows}×${currentBreakdown.topLeft.cols}=${currentBreakdown.topLeft.product}`),
+                                    
+                                    // Top-right area label
+                                    currentBreakdown.topRight && React.createElement('div', {
+                                        className: "absolute bg-blue-200 bg-opacity-90 rounded px-2 py-1 text-sm font-bold text-blue-800 border-2 border-blue-400 flex items-center justify-center",
+                                        style: {
+                                            left: cellSize * currentBreakdown.topLeft.cols + cellSize * currentBreakdown.topRight.cols / 2 - 30,
+                                            top: cellSize * currentBreakdown.topRight.rows / 2 - 12,
+                                            minWidth: '60px',
+                                            fontSize: cellSize < 15 ? '10px' : '12px'
+                                        }
+                                    }, `${currentBreakdown.topRight.rows}×${currentBreakdown.topRight.cols}=${currentBreakdown.topRight.product}`),
+                                    
+                                    // Bottom-left area label
+                                    currentBreakdown.bottomLeft && React.createElement('div', {
+                                        className: "absolute bg-green-200 bg-opacity-90 rounded px-2 py-1 text-sm font-bold text-green-800 border-2 border-green-400 flex items-center justify-center",
+                                        style: {
+                                            left: cellSize * currentBreakdown.bottomLeft.cols / 2 - 30,
+                                            top: cellSize * currentBreakdown.topLeft.rows + cellSize * currentBreakdown.bottomLeft.rows / 2 - 12,
+                                            minWidth: '60px',
+                                            fontSize: cellSize < 15 ? '10px' : '12px'
+                                        }
+                                    }, `${currentBreakdown.bottomLeft.rows}×${currentBreakdown.bottomLeft.cols}=${currentBreakdown.bottomLeft.product}`),
+                                    
+                                    // Bottom-right area label
+                                    currentBreakdown.bottomRight && React.createElement('div', {
+                                        className: "absolute bg-yellow-200 bg-opacity-90 rounded px-2 py-1 text-sm font-bold text-yellow-800 border-2 border-yellow-400 flex items-center justify-center",
+                                        style: {
+                                            left: cellSize * currentBreakdown.topLeft.cols + cellSize * currentBreakdown.bottomRight.cols / 2 - 30,
+                                            top: cellSize * currentBreakdown.topLeft.rows + cellSize * currentBreakdown.bottomRight.rows / 2 - 12,
+                                            minWidth: '60px',
+                                            fontSize: cellSize < 15 ? '10px' : '12px'
+                                        }
+                                    }, `${currentBreakdown.bottomRight.rows}×${currentBreakdown.bottomRight.cols}=${currentBreakdown.bottomRight.product}`)
                                 ),
                                 React.createElement('input', {
                                     type: "range",
@@ -546,7 +640,7 @@
                                     
                                     // Main grid
                                     React.createElement('div', {
-                                        className: "grid p-4 bg-gray-50 rounded-lg",
+                                        className: "grid p-4 bg-gray-50 rounded-lg relative",
                                         style: { 
                                             gridTemplateColumns: `repeat(${num2}, 1fr)`,
                                             gap: '4px',
