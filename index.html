@@ -413,55 +413,67 @@
                                     `First Number: ${num1}`
                                 ),
                                 
-                                // Area model legend overlaid on grid sections
+                                // Area model legend overlaid on grid sections - TESTING VERSION
                                 currentBreakdown && React.createElement('div', {
-                                    className: "absolute inset-0 pointer-events-none",
+                                    className: "absolute inset-0 pointer-events-none z-10",
                                     style: { 
                                         marginLeft: cellSize * 0.8 + 8 + 16 + 16, // Account for left margin and padding
-                                        marginTop: cellSize * 0.6 + 8 + 16 // Account for top margin and padding
+                                        marginTop: cellSize * 0.6 + 8 + 16, // Account for top margin and padding
+                                        border: '2px solid red' // DEBUG: to see the container
                                     }
                                 },
+                                    // DEBUG: Always show at least one legend for testing
+                                    React.createElement('div', {
+                                        className: "absolute bg-red-500 rounded-lg px-3 py-2 text-white font-bold shadow-xl border-2 border-white",
+                                        style: {
+                                            left: 50,
+                                            top: 50,
+                                            fontSize: '16px',
+                                            zIndex: 1000
+                                        }
+                                    }, "TEST LEGEND"),
+                                    
                                     // Top-left area legend
                                     React.createElement('div', {
-                                        className: "absolute bg-red-400 bg-opacity-80 rounded-lg px-3 py-2 text-white font-bold shadow-lg border-2 border-red-600",
+                                        className: "absolute bg-red-400 rounded-lg px-3 py-2 text-white font-bold shadow-xl border-2 border-white",
                                         style: {
                                             left: cellSize * currentBreakdown.topLeft.cols / 2 - 40,
                                             top: cellSize * currentBreakdown.topLeft.rows / 2 - 15,
-                                            fontSize: cellSize < 15 ? '12px' : '14px',
-                                            minWidth: '80px'
+                                            fontSize: '16px',
+                                            zIndex: 1000
                                         }
                                     }, `${currentBreakdown.topLeft.rows} × ${currentBreakdown.topLeft.cols}`),
                                     
                                     // Top-right area legend
                                     currentBreakdown.topRight && React.createElement('div', {
-                                        className: "absolute bg-blue-400 bg-opacity-80 rounded-lg px-3 py-2 text-white font-bold shadow-lg border-2 border-blue-600",
+                                        className: "absolute bg-blue-400 rounded-lg px-3 py-2 text-white font-bold shadow-xl border-2 border-white",
                                         style: {
                                             left: cellSize * currentBreakdown.topLeft.cols + cellSize * currentBreakdown.topRight.cols / 2 - 40,
                                             top: cellSize * currentBreakdown.topRight.rows / 2 - 15,
-                                            fontSize: cellSize < 15 ? '12px' : '14px',
-                                            minWidth: '80px'
+                                            fontSize: '16px',
+                                            zIndex: 1000
                                         }
                                     }, `${currentBreakdown.topRight.rows} × ${currentBreakdown.topRight.cols}`),
                                     
                                     // Bottom-left area legend
                                     currentBreakdown.bottomLeft && React.createElement('div', {
-                                        className: "absolute bg-green-400 bg-opacity-80 rounded-lg px-3 py-2 text-white font-bold shadow-lg border-2 border-green-600",
+                                        className: "absolute bg-green-400 rounded-lg px-3 py-2 text-white font-bold shadow-xl border-2 border-white",
                                         style: {
                                             left: cellSize * currentBreakdown.bottomLeft.cols / 2 - 40,
                                             top: cellSize * currentBreakdown.topLeft.rows + cellSize * currentBreakdown.bottomLeft.rows / 2 - 15,
-                                            fontSize: cellSize < 15 ? '12px' : '14px',
-                                            minWidth: '80px'
+                                            fontSize: '16px',
+                                            zIndex: 1000
                                         }
                                     }, `${currentBreakdown.bottomLeft.rows} × ${currentBreakdown.bottomLeft.cols}`),
                                     
                                     // Bottom-right area legend
                                     currentBreakdown.bottomRight && React.createElement('div', {
-                                        className: "absolute bg-yellow-400 bg-opacity-80 rounded-lg px-3 py-2 text-black font-bold shadow-lg border-2 border-yellow-600",
+                                        className: "absolute bg-yellow-400 rounded-lg px-3 py-2 text-black font-bold shadow-xl border-2 border-white",
                                         style: {
                                             left: cellSize * currentBreakdown.topLeft.cols + cellSize * currentBreakdown.bottomRight.cols / 2 - 40,
                                             top: cellSize * currentBreakdown.topLeft.rows + cellSize * currentBreakdown.bottomRight.rows / 2 - 15,
-                                            fontSize: cellSize < 15 ? '12px' : '14px',
-                                            minWidth: '80px'
+                                            fontSize: '16px',
+                                            zIndex: 1000
                                         }
                                     }, `${currentBreakdown.bottomRight.rows} × ${currentBreakdown.bottomRight.cols}`)
                                 ),
