@@ -114,7 +114,7 @@
                 const getBreakPoint = (num) => {
                     if (num <= 10) return num;
                     if (num <= 20) return 10;
-                    if (num <= 30) return 20;
+                    if (num <= 50) return 20;
                     return 30;
                 };
                 
@@ -161,15 +161,15 @@
             const generateNewProblem = () => {
                 let newNum1, newNum2;
                 
-                // Ensure at least one number is double digit (10-30)
+                // Ensure at least one number is double digit (10-50)
                 const useDoubleDigitFirst = Math.random() < 0.5;
                 
                 if (useDoubleDigitFirst) {
-                    newNum1 = Math.floor(Math.random() * 21) + 10; // 10-30
-                    newNum2 = Math.floor(Math.random() * 30) + 1;   // 1-30
+                    newNum1 = Math.floor(Math.random() * 41) + 10; // 10-30
+                    newNum2 = Math.floor(Math.random() * 50) + 1;   // 1-30
                 } else {
-                    newNum1 = Math.floor(Math.random() * 30) + 1;   // 1-30
-                    newNum2 = Math.floor(Math.random() * 21) + 10; // 10-30
+                    newNum1 = Math.floor(Math.random() * 50) + 1;   // 1-30
+                    newNum2 = Math.floor(Math.random() * 41) + 10; // 10-30
                 }
                 
                 setNum1(newNum1);
@@ -494,7 +494,7 @@
                                 React.createElement('div', { className: "flex justify-between text-xs text-gray-500 mt-1" },
                                     React.createElement('span', null, "1"),
                                     React.createElement('span', null, "15"),
-                                    React.createElement('span', null, "30")
+                                    React.createElement('span', null, "50")
                                 )
                             ),
                             
@@ -520,7 +520,7 @@
                                 React.createElement('div', { className: "flex justify-between text-xs text-gray-500 mt-1" },
                                     React.createElement('span', null, "1"),
                                     React.createElement('span', null, "15"),
-                                    React.createElement('span', null, "30")
+                                    React.createElement('span', null, "50")
                                 )
                             )
                         ),
